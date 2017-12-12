@@ -1,0 +1,7 @@
+---
+
+- hosts: localhost
+  become: no
+  connection: local
+
+- import_playbook: roles/common/tasks/main.yml

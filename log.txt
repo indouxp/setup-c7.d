@@ -1,0 +1,126 @@
+[root@c7 setup-c7.d]#  ansible-playbook -i hosts  site.yml --ask-pass
+SSH password:
+
+PLAY [localhost] *************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************
+ok: [localhost]
+
+PLAY [localhost] *************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************
+ok: [localhost]
+
+TASK [install python-simplejson] *********************************************************************************************************************
+ok: [localhost]
+
+TASK [install  nfs-utils] ****************************************************************************************************************************
+ok: [localhost]
+
+PLAY RECAP *******************************************************************************************************************************************
+localhost                  : ok=4    changed=0    unreachable=0    failed=0
+
+[root@c7 setup-c7.d]#
+
+
+
+
+[root@c7 setup-c7.d]# systemctl status nfs
+● nfs-server.service - NFS server and services
+   Loaded: loaded (/usr/lib/systemd/system/nfs-server.service; disabled; vendor preset: disabled)
+   Active: inactive (dead)
+[root@c7 setup-c7.d]# systemctl status rpc-bind
+Unit rpc-bind.service could not be found.
+[root@c7 setup-c7.d]# systemctl status rpcbind
+● rpcbind.service - RPC bind service
+   Loaded: loaded (/usr/lib/systemd/system/rpcbind.service; indirect; vendor preset: enabled)
+   Active: inactive (dead)
+[root@c7 setup-c7.d]#  ansible-playbook -i hosts  site.yml --ask-pass
+SSH password:
+ERROR! Syntax Error while loading YAML.
+
+
+The error appears to have been in '/root/setup-c7.d/roles/common/tasks/main.yml': line 18, column 7, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+    - name: nfs 開始
+      - systemd:
+      ^ here
+
+exception type: <class 'yaml.parser.ParserError'>
+exception: while parsing a block mapping
+  in "<unicode string>", line 17, column 7
+did not find expected key
+  in "<unicode string>", line 18, column 7
+[root@c7 setup-c7.d]# !v
+vi site.yml  roles/common/tasks/main.yml roles/common/files/exports  /etc/idmapd.conf
+4 files to edit
+[root@c7 setup-c7.d]#  ansible-playbook -i hosts  site.yml --ask-pass
+SSH password:
+ [WARNING]: While constructing a mapping from /root/setup-c7.d/roles/common/tasks/main.yml, line 17, column 7, found a duplicate dict key (systemd).
+Using last defined value only.
+
+
+PLAY [localhost] *************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************
+ok: [localhost]
+
+PLAY [localhost] *************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************
+ok: [localhost]
+
+TASK [yum instal nfs-utils] **************************************************************************************************************************
+ok: [localhost]
+
+TASK [確認] ********************************************************************************************************************************************
+ [WARNING]: Consider using yum, dnf or zypper module rather than running rpm
+
+changed: [localhost]
+
+TASK [表示] ********************************************************************************************************************************************
+ok: [localhost] => {
+    "rpm_grep_rc.rc": "0"
+}
+
+TASK [/etc/exports] **********************************************************************************************************************************
+ok: [localhost]
+
+TASK [/etc/idmapd.conf] ******************************************************************************************************************************
+ok: [localhost]
+
+TASK [nfs 開始] ****************************************************************************************************************************************
+changed: [localhost]
+
+PLAY RECAP *******************************************************************************************************************************************
+localhost                  : ok=8    changed=2    unreachable=0    failed=0
+
+[root@c7 setup-c7.d]# systemctl status rpcbind
+● rpcbind.service - RPC bind service
+   Loaded: loaded (/usr/lib/systemd/system/rpcbind.service; indirect; vendor preset: enabled)
+   Active: active (running) since 火 2017-12-12 16:06:18 JST; 13s ago
+  Process: 15212 ExecStart=/sbin/rpcbind -w $RPCBIND_ARGS (code=exited, status=0/SUCCESS)
+ Main PID: 15215 (rpcbind)
+   CGroup: /system.slice/rpcbind.service
+           └─15215 /sbin/rpcbind -w
+
+12月 12 16:06:18 c7.tsystem.gr.jp systemd[1]: Starting RPC bind service...
+12月 12 16:06:18 c7.tsystem.gr.jp systemd[1]: Started RPC bind service.
+[root@c7 setup-c7.d]# systemctl status nfs-server
+● nfs-server.service - NFS server and services
+   Loaded: loaded (/usr/lib/systemd/system/nfs-server.service; enabled; vendor preset: disabled)
+   Active: active (exited) since 火 2017-12-12 16:06:18 JST; 24s ago
+  Process: 15223 ExecStart=/usr/sbin/rpc.nfsd $RPCNFSDARGS (code=exited, status=0/SUCCESS)
+  Process: 15218 ExecStartPre=/bin/sh -c /bin/kill -HUP `cat /run/gssproxy.pid` (code=exited, status=0/SUCCESS)
+  Process: 15217 ExecStartPre=/usr/sbin/exportfs -r (code=exited, status=1/FAILURE)
+ Main PID: 15223 (code=exited, status=0/SUCCESS)
+   CGroup: /system.slice/nfs-server.service
+
+12月 12 16:06:18 c7.tsystem.gr.jp systemd[1]: Starting NFS server and services...
+12月 12 16:06:18 c7.tsystem.gr.jp exportfs[15217]: exportfs: /etc/exports:1: syntax error: bad option list
+12月 12 16:06:18 c7.tsystem.gr.jp systemd[1]: Started NFS server and services.
+[root@c7 setup-c7.d]#
+

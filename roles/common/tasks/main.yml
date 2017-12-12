@@ -1,0 +1,28 @@
+---
+
+- hosts: localhost
+
+  tasks:
+    - name: yum instal nfs-utils
+      yum: name=nfs-utils state=latest
+    - name: 確認
+      shell: rpm -qa | grep nfs-utils
+      register: rpm_grep_rc
+    - name: 表示
+      debug: var=rpm_grep_rc.rc
+    - name: /etc/exports
+      copy: src=/root/setup-c7.d/roles/common/files/exports dest=/etc/exports backup=yes
+    - name: /etc/idmapd.conf
+      replace: dest=/etc/idmapd.conf backup=yes regexp='^#Domain = local.domain.edu$' replace='Domain = tsystem.gr.jp'
+    - name: nfs 開始
+      systemd:
+        name: rpcbind
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+      systemd:
+        name: nfs-server
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+       
