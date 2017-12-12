@@ -14,6 +14,8 @@
       copy: src=/root/setup-c7.d/roles/common/files/exports dest=/etc/exports backup=yes
     - name: /etc/idmapd.conf
       replace: dest=/etc/idmapd.conf backup=yes regexp='^#Domain = local.domain.edu$' replace='Domain = tsystem.gr.jp'
+    - name: mkdir
+      file: path=/var/share state=directory owner=root group=root mode=0777
     - name: nfs 開始
       systemd:
         name: rpcbind
